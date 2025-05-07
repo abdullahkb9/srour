@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NeuroScan AI | Brain Tumor Detection</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --primary: #2563eb;
+        --primary-light: #3b82f6;
+        --primary-dark: #1d4ed8;
+        --secondary: #ec4899;
+        --secondary-light: #f472b6;
+        --accent: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --light: #f8fafc;
+        --dark: #1e293b;
+        --radius: 16px;
+        --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        color: var(--dark);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      .glass-panel {
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: var(--transition);
+      }
+
+      .neuro-shadow {
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+          0 4px 6px -4px rgba(0, 0, 0, 0.05),
+          inset 0 -2px 4px 0 rgba(0, 0, 0, 0.05),
+          inset 0 2px 4px 0 rgba(255, 255, 255, 0.5);
+      }
+
+      .floating-element {
+        transition: var(--transition);
+        box-shadow: 0 4px 20px rgba(37, 99, 235, 0.2);
+      }
+
+      .floating-element:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(37, 99, 235, 0.3);
+      }
+
+      .pulse-animation {
+        animation: pulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+        50% {
+          transform: scale(1.05);
+          opacity: 0.9;
+        }
+      }
+
+      .breathing-gradient {
+        animation: breathe 8s ease-in-out infinite;
+        background: linear-gradient(
+          135deg,
+          var(--primary-light),
+          var(--accent)
+        );
+        background-size: 200% 200%;
+      }
+
+      @keyframes breathe {
+        0%,
+        100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+
+      .upload-zone {
+        border: 2px dashed rgba(59, 130, 246, 0.3);
+        transition: var(--transition);
+        background-color: rgba(248, 250, 252, 0.7);
+      }
+
+      .upload-zone:hover {
+        border-color: var(--primary);
+        background-color: rgba(59, 130, 246, 0.08);
+      }
+
+      .upload-zone.drag-over {
+        border-color: var(--primary);
+        background-color: rgba(59, 130, 246, 0.15);
+        transform: scale(1.01);
+      }
+
+      .info-card {
+        transition: var(--transition);
+        border-left: 4px solid var(--primary-light);
+      }
+
+      .info-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .result-card {
+        transition: var(--transition);
+        border-top: 4px solid var(--primary);
+      }
+
+      .loading-spinner {
+        animation: spin 1.5s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .progress-track {
+        height: 8px;
+        background-color: rgba(59, 130, 246, 0.1);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .progress-thumb {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--primary-light), var(--accent));
+        transition: width 0.6s ease, background-color 0.3s ease;
+      }
+
+      .scan-animation {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .scan-animation::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          to bottom,
+          transparent,
+          rgba(255, 255, 255, 0.8),
+          transparent
+        );
+        animation: scan 2.5s linear infinite;
+      }
+
+      @keyframes scan {
+        0% {
+          transform: translateY(-100%);
+        }
+        100% {
+          transform: translateY(100%);
+        }
+      }
+
+      .neuro-button {
+        position: relative;
+        overflow: hidden;
+        transition: var(--transition);
+      }
+
+      .neuro-button::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+          to bottom right,
+          rgba(255, 255, 255, 0.3),
+          rgba(255, 255, 255, 0)
+        );
+        transform: rotate(30deg);
+        transition: var(--transition);
+      }
+
+      .neuro-button:hover::before {
+        animation: shine 1.5s ease infinite;
+      }
+
+      @keyframes shine {
+        0% {
+          transform: translateX(-100%) rotate(30deg);
+        }
+        100% {
+          transform: translateX(100%) rotate(30deg);
+        }
+      }
+
+      .tooltip {
+        position: relative;
+      }
+
+      .tooltip-text {
+        visibility: hidden;
+        width: 220px;
+        background-color: var(--dark);
+        color: white;
+        text-align: center;
+        border-radius: 6px;
+        padding: 8px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%;
+        left: 50%;
+        transform: translateX(-50%);
+        opacity: 0;
+        transition: opacity 0.3s;
+        font-size: 0.875rem;
+        box-shadow: var(--shadow);
+      }
+
+      .tooltip:hover .tooltip-text {
+        visibility: visible;
+        opacity: 1;
+      }
+
+      .floating {
+        animation: float 6s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-12px);
+        }
+      }
+
+      @media (max-width: 768px) {
+        :root {
+          --radius: 12px;
+        }
+
+        .glass-panel {
+          padding: 1.5rem !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Animated Background Elements -->
+    <div class="fixed inset-0 overflow-hidden z-[-2]">
+      <div
+        class="absolute top-[-50%] left-[-50%] w-[200%] h-[200%] opacity-[0.03]"
+      >
+        <div
+          class="absolute top-[20%] left-[10%] w-80 h-80 rounded-full bg-primary-light mix-blend-multiply filter blur-[80px]"
+        ></div>
+        <div
+          class="absolute top-[60%] left-[70%] w-96 h-96 rounded-full bg-accent mix-blend-multiply filter blur-[100px]"
+        ></div>
+      </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div
+      id="loadingOverlay"
+      class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 hidden"
+    >
+      <div
+        class="glass-panel p-10 rounded-xl flex flex-col items-center max-w-md w-[90%] mx-auto"
+      >
+        <div class="relative mb-6">
+          <div
+            class="w-24 h-24 rounded-full bg-primary-light bg-opacity-20 flex items-center justify-center"
+          >
+            <div
+              class="loading-spinner absolute border-4 border-t-primary border-r-primary border-b-transparent border-l-transparent rounded-full w-16 h-16"
+            ></div>
+            <i class="fas fa-brain text-primary text-3xl"></i>
+          </div>
+        </div>
+        <h3 class="text-xl font-semibold text-primary mb-2">
+          Analyzing MRI Scan
+        </h3>
+        <p class="text-gray-600 mb-6 text-center">
+          Our AI is processing your MRI scan to detect potential abnormalities
+        </p>
+
+        <div class="w-full max-w-xs mb-4">
+          <div class="flex justify-between text-sm text-gray-500 mb-1">
+            <span>Processing</span>
+            <span id="progressPercent">0%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-thumb" id="progressThumb"></div>
+          </div>
+        </div>
+
+        <div class="text-xs text-gray-400 mt-4 flex items-center gap-2">
+          <i class="fas fa-info-circle"></i>
+          <span>This typically takes 5-15 seconds</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container mx-auto px-4 py-12 max-w-5xl">
+      <div class="glass-panel p-8 md:p-10 neuro-shadow">
+        <!-- Header Section -->
+        <div class="text-center mb-10">
+          <div
+            class="w-24 h-24 rounded-full bg-primary-light bg-opacity-20 flex items-center justify-center mx-auto mb-6 floating"
+          >
+            <i class="fas fa-brain text-primary text-4xl"></i>
+          </div>
+          <h1 class="text-3xl md:text-4xl font-bold text-primary mb-3">
+            NeuroScan AI
+          </h1>
+          <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+            Advanced deep learning for early detection of brain abnormalities
+          </p>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="mb-12">
+          <form id="uploadForm" class="space-y-6">
+            <div
+              class="upload-zone rounded-xl p-8 md:p-10 text-center cursor-pointer"
+              id="dropArea"
+            >
+              <div
+                class="w-20 h-20 rounded-full bg-primary-light bg-opacity-20 flex items-center justify-center mx-auto mb-5"
+              >
+                <i class="fas fa-cloud-upload-alt text-primary text-3xl"></i>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-800 mb-2">
+                Upload MRI Scan
+              </h3>
+              <p class="text-gray-500 mb-6">
+                Drag & drop DICOM or standard image files here
+              </p>
+
+              <div class="file-input-wrapper">
+                <button
+                  type="button"
+                  class="neuro-button floating-element bg-primary text-white px-8 py-4 rounded-xl hover:bg-primary-dark flex items-center gap-3 mx-auto"
+                >
+                  <i class="fas fa-folder-open"></i>
+                  <span>Browse Files</span>
+                </button>
+                <input
+                  type="file"
+                  name="brainImage"
+                  id="fileInput"
+                  accept="image/*,.dcm,.dicom"
+                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+              </div>
+
+              <div class="mt-6 flex justify-center">
+                <div class="flex items-center gap-2 text-sm text-gray-500">
+                  <i class="fas fa-info-circle"></i>
+                  <span>Supports: .dcm, .jpg, .png (Max 15MB)</span>
+                </div>
+              </div>
+
+              <div class="mt-4" id="fileInfo">
+                <p
+                  class="text-sm text-primary flex items-center justify-center gap-2 hidden"
+                  id="fileNameDisplay"
+                >
+                  <i class="fas fa-check-circle"></i>
+                  <span id="fileNameText"></span>
+                  <span
+                    class="text-xs bg-primary bg-opacity-10 text-primary px-2 py-1 rounded-full"
+                    id="fileSizeText"
+                  ></span>
+                </p>
+              </div>
+            </div>
+
+            <!-- Image Preview -->
+            <div
+              class="image-preview rounded-xl overflow-hidden hidden"
+              id="imagePreview"
+            >
+              <div
+                class="bg-gray-50 p-4 border-b border-gray-200 flex justify-between items-center"
+              >
+                <h4 class="font-medium text-gray-700 flex items-center gap-2">
+                  <i class="fas fa-image text-primary"></i>
+                  <span>MRI Preview</span>
+                </h4>
+                <button
+                  type="button"
+                  id="clearPreview"
+                  class="text-sm text-gray-500 hover:text-primary flex items-center gap-1"
+                >
+                  <i class="fas fa-times"></i>
+                  <span>Clear</span>
+                </button>
+              </div>
+              <div class="p-4 flex justify-center bg-gray-50 scan-animation">
+                <img
+                  id="previewImg"
+                  src=""
+                  alt="MRI Preview"
+                  class="max-w-full max-h-72 rounded-lg shadow-md object-contain"
+                />
+              </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center gap-4 pt-4">
+              <button
+                type="submit"
+                class="neuro-button breathing-gradient text-white px-10 py-4 rounded-xl hover:opacity-90 flex items-center justify-center gap-3 w-full sm:w-auto pulse-animation"
+                id="submitBtn"
+                disabled
+              >
+                <i class="fas fa-search"></i>
+                <span>Analyze Scan</span>
+              </button>
+
+              <button
+                type="button"
+                id="sampleBtn"
+                class="neuro-button bg-white text-primary border border-primary px-8 py-4 rounded-xl hover:bg-primary hover:text-white flex items-center justify-center gap-3 w-full sm:w-auto"
+              >
+                <i class="fas fa-vial"></i>
+                <span>Try Sample</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Results Section -->
+        <div
+          class="result-card bg-white rounded-xl overflow-hidden mb-12 hidden"
+          id="resultsSection"
+        >
+          <div
+            class="bg-gradient-to-r from-primary to-primary-dark text-white p-5"
+          >
+            <div class="flex justify-between items-center">
+              <h2 class="text-xl font-semibold flex items-center gap-3">
+                <i class="fas fa-chart-line"></i>
+                <span>Analysis Results</span>
+              </h2>
+              <div class="flex items-center gap-2">
+                <span
+                  class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded-full"
+                  >AI Confidence: 96.8%</span
+                >
+                <button
+                  id="exportResults"
+                  class="text-white hover:text-accent transition-colors"
+                >
+                  <i class="fas fa-file-export"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-6">
+            <!-- Results Header -->
+            <div
+              class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4"
+            >
+              <div>
+                <h3
+                  class="font-bold text-lg text-gray-800 mb-1"
+                  id="diagnosisTitle"
+                >
+                  Potential Tumor Detected
+                </h3>
+                <p class="text-gray-600">
+                  Based on analysis of the uploaded MRI scan
+                </p>
+              </div>
+              <div class="flex items-center gap-3">
+                <div class="relative tooltip">
+                  <div
+                    class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center"
+                  >
+                    <i
+                      class="fas fa-exclamation-triangle text-red-500 text-xl"
+                    ></i>
+                  </div>
+                  <span class="tooltip-text"
+                    >This result should be reviewed by a medical
+                    professional</span
+                  >
+                </div>
+                <div>
+                  <p class="text-sm text-gray-500">Risk Level</p>
+                  <p class="font-bold text-red-500">High</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Results Grid -->
+            <div
+              class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"
+              id="resultsContainer"
+            >
+              <!-- Results will be inserted here by JavaScript -->
+            </div>
+
+            <!-- Visualization -->
+            <div class="mb-8">
+              <div class="flex justify-between items-center mb-3">
+                <h4 class="font-medium text-gray-700 flex items-center gap-2">
+                  <i class="fas fa-project-diagram text-primary"></i>
+                  <span>Tumor Visualization</span>
+                </h4>
+                <div class="flex items-center gap-2">
+                  <button
+                    class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded transition-colors"
+                  >
+                    <i class="fas fa-sliders-h mr-1"></i> Adjust
+                  </button>
+                  <button
+                    class="text-xs bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded transition-colors"
+                  >
+                    <i class="fas fa-layer-group mr-1"></i> Layers
+                  </button>
+                </div>
+              </div>
+              <div
+                class="bg-gray-50 rounded-lg p-4 flex justify-center items-center h-48"
+              >
+                <div class="text-center text-gray-400">
+                  <i class="fas fa-image fa-2x mb-2"></i>
+                  <p>Tumor heatmap visualization</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="bg-blue-50 p-5 rounded-lg">
+              <h4 class="font-medium text-primary mb-3 flex items-center gap-2">
+                <i class="fas fa-notes-medical"></i>
+                <span>Clinical Recommendations</span>
+              </h4>
+              <div class="space-y-3 text-gray-700" id="recommendationsText">
+                <p>
+                  1.
+                  <strong>Urgent neurosurgical consultation</strong> recommended
+                  for further evaluation.
+                </p>
+                <p>
+                  2. Consider <strong>contrast-enhanced MRI</strong> for more
+                  detailed assessment.
+                </p>
+                <p>
+                  3. <strong>Neurological examination</strong> should be
+                  performed to assess functional impact.
+                </p>
+              </div>
+
+              <div class="mt-4 pt-4 border-t border-blue-100">
+                <div class="flex flex-wrap gap-3">
+                  <button
+                    class="text-xs bg-white hover:bg-blue-100 border border-blue-200 text-blue-600 px-3 py-1 rounded-full transition-colors flex items-center gap-1"
+                  >
+                    <i class="fas fa-user-md"></i>
+                    <span>Find Specialist</span>
+                  </button>
+                  <button
+                    class="text-xs bg-white hover:bg-blue-100 border border-blue-200 text-blue-600 px-3 py-1 rounded-full transition-colors flex items-center gap-1"
+                  >
+                    <i class="fas fa-book-medical"></i>
+                    <span>Treatment Options</span>
+                  </button>
+                  <button
+                    class="text-xs bg-white hover:bg-blue-100 border border-blue-200 text-blue-600 px-3 py-1 rounded-full transition-colors flex items-center gap-1"
+                  >
+                    <i class="fas fa-question-circle"></i>
+                    <span>Learn More</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Information Section -->
+        <div class="glass-panel p-6 md:p-8 rounded-xl">
+          <h2
+            class="text-xl font-semibold text-primary mb-5 flex items-center gap-3"
+          >
+            <i class="fas fa-microscope"></i>
+            <span>About Our Technology</span>
+          </h2>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+            <div class="info-card bg-white p-5 rounded-lg">
+              <div
+                class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-4"
+              >
+                <i class="fas fa-brain text-primary"></i>
+              </div>
+              <h3 class="font-semibold text-gray-800 mb-2">
+                Deep Learning Model
+              </h3>
+              <p class="text-gray-600 text-sm">
+                Our convolutional neural network was trained on over 25,000
+                annotated MRI scans from leading medical institutions.
+              </p>
+            </div>
+
+            <div class="info-card bg-white p-5 rounded-lg">
+              <div
+                class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-4"
+              >
+                <i class="fas fa-shield-alt text-primary"></i>
+              </div>
+              <h3 class="font-semibold text-gray-800 mb-2">
+                Clinical Validation
+              </h3>
+              <p class="text-gray-600 text-sm">
+                Achieved 96.8% accuracy in blinded tests against radiologist
+                interpretations.
+              </p>
+            </div>
+
+            <div class="info-card bg-white p-5 rounded-lg">
+              <div
+                class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-4"
+              >
+                <i class="fas fa-bolt text-primary"></i>
+              </div>
+              <h3 class="font-semibold text-gray-800 mb-2">
+                Real-Time Processing
+              </h3>
+              <p class="text-gray-600 text-sm">
+                Optimized for rapid analysis without compromising diagnostic
+                accuracy.
+              </p>
+            </div>
+          </div>
+
+          <div class="bg-blue-50 p-4 rounded-lg">
+            <h4 class="font-medium text-primary mb-2 flex items-center gap-2">
+              <i class="fas fa-lightbulb"></i>
+              <span>Important Note</span>
+            </h4>
+            <p class="text-gray-700 text-sm">
+              This tool is designed to assist healthcare professionals and does
+              not replace clinical judgment. All results should be interpreted
+              by qualified medical personnel.
+            </p>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="mt-10 text-center">
+          <a
+            href="index.html"
+            class="inline-flex items-center gap-2 text-primary hover:text-primary-dark font-medium transition-colors"
+          >
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Model Selection</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // DOM Elements
+        const fileInput = document.getElementById("fileInput");
+        const fileNameDisplay = document.getElementById("fileNameDisplay");
+        const fileNameText = document.getElementById("fileNameText");
+        const fileSizeText = document.getElementById("fileSizeText");
+        const submitBtn = document.getElementById("submitBtn");
+        const dropArea = document.getElementById("dropArea");
+        const imagePreview = document.getElementById("imagePreview");
+        const previewImg = document.getElementById("previewImg");
+        const clearPreview = document.getElementById("clearPreview");
+        const uploadForm = document.getElementById("uploadForm");
+        const loadingOverlay = document.getElementById("loadingOverlay");
+        const progressThumb = document.getElementById("progressThumb");
+        const progressPercent = document.getElementById("progressPercent");
+        const resultsSection = document.getElementById("resultsSection");
+        const resultsContainer = document.getElementById("resultsContainer");
+        const recommendationsText = document.getElementById(
+          "recommendationsText"
+        );
+        const sampleBtn = document.getElementById("sampleBtn");
+        const exportResults = document.getElementById("exportResults");
+        const diagnosisTitle = document.getElementById("diagnosisTitle");
+
+        // File Validation
+        function isValidFile(file) {
+          const validTypes = ["image/jpeg", "image/png", "application/dicom"];
+          const validExtensions = ["dcm", "dicom", "jpg", "jpeg", "png"];
+          const maxSize = 15 * 1024 * 1024; // 15MB
+
+          // Check extension for DICOM files which might not have correct type
+          const extension = file.name.split(".").pop().toLowerCase();
+
+          return (
+            validTypes.includes(file.type) ||
+            (validExtensions.includes(extension) && file.size <= maxSize)
+          );
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+          if (bytes === 0) return "0 Bytes";
+          const k = 1024;
+          const sizes = ["Bytes", "KB", "MB", "GB"];
+          const i = Math.floor(Math.log(bytes) / Math.log(k));
+          return (
+            parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i]
+          );
+        }
+
+        // Handle File Selection
+        fileInput.addEventListener("change", function (e) {
+          if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+
+            if (!isValidFile(file)) {
+              showWarning(
+                "Invalid file type or size. Please upload DICOM, JPG, or PNG under 15MB."
+              );
+              resetFileInput();
+              return;
+            }
+
+            fileNameText.textContent = file.name;
+            fileSizeText.textContent = formatFileSize(file.size);
+            fileNameDisplay.classList.remove("hidden");
+            submitBtn.disabled = false;
+
+            // Preview image if it's a standard image format
+            if (file.type.includes("image") && !file.type.includes("dicom")) {
+              const reader = new FileReader();
+              reader.onload = function (e) {
+                previewImg.src = e.target.result;
+                imagePreview.classList.remove("hidden");
+              };
+              reader.readAsDataURL(file);
+            } else {
+              imagePreview.classList.add("hidden");
+            }
+          }
+        });
+
+        // Clear Preview
+        clearPreview.addEventListener("click", function (e) {
+          e.preventDefault();
+          resetFileInput();
+        });
+
+        // Drag and Drop Functionality
+        ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+          dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        ["dragenter", "dragover"].forEach((eventName) => {
+          dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ["dragleave", "drop"].forEach((eventName) => {
+          dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+          dropArea.classList.add("drag-over");
+        }
+
+        function unhighlight() {
+          dropArea.classList.remove("drag-over");
+        }
+
+        dropArea.addEventListener("drop", handleDrop, false);
+
+        function handleDrop(e) {
+          const dt = e.dataTransfer;
+          const files = dt.files;
+
+          if (files.length > 0) {
+            fileInput.files = files;
+            const event = new Event("change");
+            fileInput.dispatchEvent(event);
+          }
+        }
+
+        // Form Submission
+        uploadForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+
+          if (!fileInput.files.length) return;
+
+          // Show loading overlay
+          loadingOverlay.classList.remove("hidden");
+
+          // Simulate progress (in real app, you'd use actual upload progress)
+          let progress = 0;
+          const progressInterval = setInterval(() => {
+            progress += Math.random() * 5 + 1;
+            if (progress > 100) progress = 100;
+            progressThumb.style.width = `${progress}%`;
+            progressPercent.textContent = `${Math.floor(progress)}%`;
+
+            if (progress >= 100) {
+              clearInterval(progressInterval);
+              // Simulate processing delay
+              setTimeout(showResults, 1500);
+            }
+          }, 200);
+        });
+
+        // Sample Button
+        sampleBtn.addEventListener("click", function () {
+          // Use a sample image
+          fileNameText.textContent = "sample_mri.dcm";
+          fileSizeText.textContent = "4.2 MB";
+          fileNameDisplay.classList.remove("hidden");
+          submitBtn.disabled = false;
+          previewImg.src = "https://example.com/sample_mri.jpg"; // Replace with actual sample image
+          imagePreview.classList.remove("hidden");
+
+          // Show info toast
+          showToast(
+            'Sample MRI scan loaded. Click "Analyze Scan" to see demo results.'
+          );
+        });
+
+        // Export Results
+        exportResults.addEventListener("click", function () {
+          showToast("Exporting results to PDF...");
+          // In a real app, this would generate and download a PDF report
+          setTimeout(() => {
+            showToast("Report exported successfully!", "success");
+          }, 2000);
+        });
+
+        // Show Results (Simulated)
+        function showResults() {
+          loadingOverlay.classList.add("hidden");
+          resultsSection.classList.remove("hidden");
+
+          // Scroll to results
+          setTimeout(() => {
+            resultsSection.scrollIntoView({ behavior: "smooth" });
+          }, 100);
+
+          // Simulated results - in a real app, this would come from your API
+          const results = [
+            {
+              title: "Tumor Detection",
+              value: "Positive",
+              confidence: "92%",
+              icon: "fas fa-diagnoses",
+              color: "text-red-500",
+              description:
+                "High confidence tumor detection in left temporal lobe",
+            },
+            {
+              title: "Tumor Type",
+              value: "Glioblastoma",
+              confidence: "87%",
+              icon: "fas fa-tag",
+              color: "text-amber-500",
+              description: "Features consistent with high-grade glioma",
+            },
+            {
+              title: "Tumor Size",
+              value: "2.4 cm",
+              confidence: "±0.2 cm",
+              icon: "fas fa-ruler",
+              color: "text-blue-500",
+              description: "Maximum diameter measurement",
+            },
+            {
+              title: "Edema Present",
+              value: "Yes",
+              confidence: "78%",
+              icon: "fas fa-cloud",
+              color: "text-purple-500",
+              description: "Peritumoral edema detected",
+            },
+            {
+              title: "Midline Shift",
+              value: "3.2 mm",
+              confidence: "82%",
+              icon: "fas fa-arrows-alt-h",
+              color: "text-green-500",
+              description: "Significant mass effect",
+            },
+            {
+              title: "Enhancement Pattern",
+              value: "Irregular",
+              confidence: "89%",
+              icon: "fas fa-dot-circle",
+              color: "text-cyan-500",
+              description: "Heterogeneous contrast uptake",
+            },
+          ];
+
+          // Clear previous results
+          resultsContainer.innerHTML = "";
+
+          // Add new results
+          results.forEach((result) => {
+            const resultCard = document.createElement("div");
+            resultCard.className =
+              "bg-white p-4 rounded-lg shadow-sm border border-gray-100 hover:shadow-md transition-shadow";
+            resultCard.innerHTML = `
+            <div class="flex items-start gap-3">
+              <div class="w-10 h-10 ${result.color} bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0">
+                <i class="${result.icon}"></i>
+              </div>
+              <div class="flex-1">
+                <h4 class="font-medium text-gray-700">${result.title}</h4>
+                <p class="text-xl font-semibold ${result.color} mt-1 mb-2">${result.value}</p>
+                <div class="flex justify-between items-center">
+                  <p class="text-xs text-gray-500">${result.description}</p>
+                  <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">${result.confidence} conf</span>
+                </div>
+              </div>
+            </div>
+          `;
+            resultsContainer.appendChild(resultCard);
+          });
+
+          // Update diagnosis title with random sample text
+          const diagnoses = [
+            "Potential Tumor Detected",
+            "Abnormal Findings Identified",
+            "Suspicious Lesion Found",
+            "Positive for Intracranial Mass",
+          ];
+          diagnosisTitle.textContent =
+            diagnoses[Math.floor(Math.random() * diagnoses.length)];
+        }
+
+        // Show Toast Notification
+        function showToast(message, type = "info") {
+          const toast = document.createElement("div");
+          toast.className = `fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-${
+            type === "success" ? "green" : "blue"
+          }-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 z-50`;
+          toast.innerHTML = `
+          <i class="fas ${
+            type === "success" ? "fa-check-circle" : "fa-info-circle"
+          }"></i>
+          <span>${message}</span>
+        `;
+          document.body.appendChild(toast);
+
+          setTimeout(() => {
+            toast.remove();
+          }, 3000);
+        }
+
+        // Show Warning
+        function showWarning(message) {
+          const warning = document.createElement("div");
+          warning.className =
+            "fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 z-50";
+          warning.innerHTML = `
+          <i class="fas fa-exclamation-triangle"></i>
+          <span>${message}</span>
+        `;
+          document.body.appendChild(warning);
+
+          setTimeout(() => {
+            warning.remove();
+          }, 4000);
+        }
+
+        // Reset file input
+        function resetFileInput() {
+          fileInput.value = "";
+          fileNameDisplay.classList.add("hidden");
+          submitBtn.disabled = true;
+          imagePreview.classList.add("hidden");
+        }
+      }); // This properly closes the DOMContentLoaded event listener
+    </script>
+  </body>
+</html>

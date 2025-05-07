@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HealthScan - Admin Logs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+      :root {
+        --primary: #3498db;
+        --primary-dark: #2980b9;
+        --secondary: #2ecc71;
+        --danger: #e74c3c;
+        --warning: #f39c12;
+        --dark: #2c3e50;
+        --light: #ecf0f1;
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #f8f9fa;
+      }
+
+      .glass-card {
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+      }
+
+      .navbar {
+        background: rgba(44, 62, 80, 0.9);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+      }
+
+      .nav-link {
+        position: relative;
+      }
+
+      .nav-link:after {
+        content: "";
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background-color: var(--light);
+        transition: width 0.3s ease;
+      }
+
+      .nav-link:hover:after {
+        width: 100%;
+      }
+
+      .nav-link.active:after {
+        width: 100%;
+      }
+
+      .log-success {
+        color: var(--secondary);
+        font-weight: 500;
+      }
+
+      .log-warning {
+        color: var(--warning);
+        font-weight: 500;
+      }
+
+      .log-danger {
+        color: var(--danger);
+        font-weight: 500;
+      }
+
+      .floating-btn {
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        transition: all 0.3s ease;
+      }
+
+      .floating-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+      }
+
+      .table-hover tbody tr {
+        transition: all 0.2s ease;
+      }
+
+      .table-hover tbody tr:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      }
+
+      .timestamp {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+      }
+
+      .footer {
+        background: rgba(44, 62, 80, 0.9);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: var(--light);
+      }
+
+      /* Loading spinner */
+      .loading-spinner {
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Special character warning styles */
+      .special-char-warning {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+        max-width: 350px;
+        display: none;
+      }
+
+      .char-highlight {
+        background-color: #fef08a;
+        padding: 0 2px;
+        border-radius: 2px;
+      }
+    </style>
+  </head>
+  <body class="bg-gradient-to-br from-blue-50 to-cyan-50 min-h-screen">
+    <!-- Loading Overlay -->
+    <div
+      id="loadingOverlay"
+      class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 hidden"
+    >
+      <div class="bg-white p-6 rounded-lg shadow-xl flex flex-col items-center">
+        <div
+          class="loading-spinner border-4 border-t-blue-500 border-r-blue-500 border-b-transparent border-l-transparent rounded-full w-12 h-12 mb-3"
+        ></div>
+        <p class="text-gray-700">Loading activity logs...</p>
+      </div>
+    </div>
+
+    <!-- Special Character Warning Modal -->
+    <div class="special-char-warning glass-card p-4 shadow-lg">
+      <div class="flex justify-between items-start mb-2">
+        <h3 class="font-medium text-slate-800">
+          <i class="fas fa-exclamation-triangle text-amber-500 mr-2"></i>
+          Special Character Detected
+        </h3>
+        <button class="close-warning text-slate-400 hover:text-slate-600">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <p class="text-sm text-slate-600 mb-3">
+        The system detected special characters in your input that may cause
+        issues. Please avoid using:
+        <span class="char-highlight"
+          >@ # $ % ^ & * ( ) [ ] { } | \ / &lt; &gt;</span
+        >
+      </p>
+      <div class="flex justify-end">
+        <button
+          class="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 understand-warning"
+        >
+          I Understand
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark shadow-lg">
+      <div class="container mx-auto px-4">
+        <a class="navbar-brand text-xl font-bold" href="/">
+          <i class="fas fa-heartbeat mr-2"></i>HealthScan
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav me-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/admin/dashboard">
+                <i class="fas fa-tachometer-alt mr-1"></i>Admin Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="/admin/logs">
+                <i class="fas fa-history mr-1"></i>Activity Logs
+              </a>
+            </li>
+          </ul>
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="/logout">
+                <i class="fas fa-sign-out-alt mr-1"></i>Logout
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+      <div class="flex justify-between items-center mb-6">
+        <a
+          href="/admin/dashboard"
+          class="floating-btn bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+        >
+          <i class="fas fa-arrow-left"></i>
+          <span>Back to Dashboard</span>
+        </a>
+
+        <div class="flex items-center gap-4">
+          <div class="relative">
+            <input
+              type="text"
+              id="logSearch"
+              placeholder="Search logs..."
+              class="search-input w-full md:w-64 px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            />
+            <button
+              id="searchLogsBtn"
+              class="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-blue-600"
+            >
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+          <button
+            id="exportLogsBtn"
+            class="floating-btn bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50 flex items-center gap-2"
+          >
+            <i class="fas fa-file-export"></i>
+            <span>Export</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="glass-card overflow-hidden">
+        <div
+          class="flex justify-between items-center p-4 border-b border-slate-200"
+        >
+          <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <i class="fas fa-history text-blue-600"></i>
+            Admin Activity Logs
+          </h3>
+          <span
+            class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full"
+          >
+            <%= logs.length %> Records
+          </span>
+        </div>
+
+        <% if (logs && logs.length > 0) { %>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-slate-200">
+            <thead class="bg-slate-50">
+              <tr>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer sortable"
+                  data-sort="index"
+                >
+                  <div class="flex items-center gap-1">
+                    #
+                    <i class="fas fa-sort text-slate-400"></i>
+                  </div>
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer sortable"
+                  data-sort="admin"
+                >
+                  <div class="flex items-center gap-1">
+                    Admin
+                    <i class="fas fa-sort text-slate-400"></i>
+                  </div>
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer sortable"
+                  data-sort="action"
+                >
+                  <div class="flex items-center gap-1">
+                    Action
+                    <i class="fas fa-sort text-slate-400"></i>
+                  </div>
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer sortable"
+                  data-sort="target"
+                >
+                  <div class="flex items-center gap-1">
+                    Target User
+                    <i class="fas fa-sort text-slate-400"></i>
+                  </div>
+                </th>
+                <th
+                  class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer sortable"
+                  data-sort="timestamp"
+                >
+                  <div class="flex items-center gap-1">
+                    Timestamp
+                    <i class="fas fa-sort text-slate-400"></i>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-slate-200">
+              <% logs.forEach((log, index) => { %>
+              <tr class="hover:bg-blue-50/50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                  <%= index + 1 %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="flex items-center gap-3">
+                    <div
+                      class="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center"
+                    >
+                      <i class="fas fa-user-shield text-blue-600"></i>
+                    </div>
+                    <div class="text-sm font-medium text-slate-900">
+                      <%= log.admin.username %>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% if (log.action.includes('Promoted')) { %>
+                  <span class="log-success flex items-center gap-2">
+                    <i class="fas fa-arrow-up"></i>
+                    <%= log.action %>
+                  </span>
+                  <% } else if (log.action.includes('Demoted')) { %>
+                  <span class="log-warning flex items-center gap-2">
+                    <i class="fas fa-arrow-down"></i>
+                    <%= log.action %>
+                  </span>
+                  <% } else if (log.action.includes('Deleted')) { %>
+                  <span class="log-danger flex items-center gap-2">
+                    <i class="fas fa-trash-alt"></i>
+                    <%= log.action %>
+                  </span>
+                  <% } else { %>
+                  <span class="flex items-center gap-2">
+                    <i class="fas fa-info-circle text-blue-500"></i>
+                    <%= log.action %>
+                  </span>
+                  <% } %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                  <%= log.target_username %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="timestamp flex items-center gap-2">
+                    <i class="far fa-clock"></i>
+                    <%= new Date(log.timestamp).toLocaleString() %>
+                  </div>
+                </td>
+              </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+        <% } else { %>
+        <div class="p-12 text-center">
+          <div class="mx-auto max-w-md">
+            <div class="mb-4 text-slate-400">
+              <i class="fas fa-history text-5xl"></i>
+            </div>
+            <h3 class="text-lg font-medium text-slate-700 mb-2">
+              No activity logs found
+            </h3>
+            <p class="text-slate-500 mb-6">
+              Administrative actions will appear here when performed
+            </p>
+          </div>
+        </div>
+        <% } %>
+
+        <!-- Pagination would go here if needed -->
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer mt-12">
+      <div class="container mx-auto px-4 py-6 text-center">
+        <p>
+          &copy; <%= new Date().getFullYear() %> HealthScan. All rights
+          reserved.
+        </p>
+      </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+      // Auto-hide flash messages
+      document.addEventListener("DOMContentLoaded", () => {
+        // Set active nav link
+        const currentPath = window.location.pathname;
+        document.querySelectorAll(".nav-link").forEach((link) => {
+          if (link.getAttribute("href") === currentPath) {
+            link.classList.add("active");
+          }
+        });
+
+        // Loading overlay functions
+        function showLoading() {
+          document.getElementById("loadingOverlay").classList.remove("hidden");
+        }
+
+        function hideLoading() {
+          document.getElementById("loadingOverlay").classList.add("hidden");
+        }
+
+        // Export logs functionality
+        document
+          .getElementById("exportLogsBtn")
+          .addEventListener("click", function () {
+            showLoading();
+            // Simulate export process
+            setTimeout(() => {
+              hideLoading();
+              alert("Logs exported successfully!");
+            }, 1500);
+          });
+
+        // Search logs functionality
+        document
+          .getElementById("searchLogsBtn")
+          .addEventListener("click", function () {
+            const searchTerm = document.getElementById("logSearch").value;
+            if (searchTerm) {
+              showLoading();
+              // Simulate search
+              setTimeout(() => {
+                hideLoading();
+                alert(`Would search for: ${searchTerm}`);
+              }, 800);
+            }
+          });
+
+        // Table sorting functionality
+        document.querySelectorAll(".sortable").forEach((header) => {
+          header.addEventListener("click", function () {
+            const sortField = this.dataset.sort;
+            // In a real app, this would trigger a server-side sort
+            alert(
+              `Sorting by ${sortField} - would trigger server request in real app`
+            );
+          });
+        });
+
+        // Special character detection
+        const logSearch = document.getElementById("logSearch");
+        const warningModal = document.querySelector(".special-char-warning");
+        const closeWarning = document.querySelector(".close-warning");
+        const understandBtn = document.querySelector(".understand-warning");
+
+        const specialChars = /[@#$%^&*()\[\]{}|\\\/<>]/g;
+
+        function checkForSpecialChars() {
+          if (logSearch.value.match(specialChars)) {
+            warningModal.style.display = "block";
+            setTimeout(() => {
+              warningModal.style.opacity = "1";
+              warningModal.style.transform = "translateY(0)";
+            }, 10);
+            return true;
+          }
+          return false;
+        }
+
+        // Input live validation
+        logSearch.addEventListener("input", function () {
+          if (this.value.match(specialChars)) {
+            checkForSpecialChars();
+          }
+        });
+
+        // Close warning modal
+        function hideWarning() {
+          warningModal.style.opacity = "0";
+          warningModal.style.transform = "translateY(20px)";
+          setTimeout(() => {
+            warningModal.style.display = "none";
+          }, 300);
+        }
+
+        closeWarning.addEventListener("click", hideWarning);
+        understandBtn.addEventListener("click", hideWarning);
+      });
+    </script>
+  </body>
+</html>

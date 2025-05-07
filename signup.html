@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HealthScan AI - Signup</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <style>
+      :root {
+        --primary: #2a5c82;
+        --secondary: #5da9e9;
+        --accent: #ff6b6b;
+        --light: #f5f9fc;
+        --dark: #1a2e40;
+        --radius: 8px;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Open Sans", sans-serif;
+        background-color: var(--light);
+        color: var(--dark);
+        line-height: 1.6;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        position: relative;
+        overflow-x: hidden;
+        padding: 20px;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(42, 92, 130, 0.85);
+        z-index: -1;
+      }
+
+      .signup-container {
+        background: white;
+        border-radius: var(--radius);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 500px;
+        padding: 40px;
+        animation: fadeIn 0.6s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .signup-container h2 {
+        color: var(--primary);
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 28px;
+        font-weight: 700;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--dark);
+      }
+
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: var(--radius);
+        font-size: 16px;
+        transition: all 0.3s;
+        background-color: #f9f9f9;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: var(--secondary);
+        box-shadow: 0 0 0 3px rgba(93, 169, 233, 0.2);
+        background-color: white;
+      }
+
+      .btn-submit {
+        width: 100%;
+        padding: 14px;
+        background-color: var(--accent);
+        color: white;
+        border: none;
+        border-radius: var(--radius);
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 10px;
+      }
+
+      .btn-submit:hover {
+        background-color: #ff5252;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+      }
+
+      .login-link {
+        text-align: center;
+        margin-top: 20px;
+        color: #666;
+      }
+
+      .login-link a {
+        color: var(--secondary);
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .login-link a:hover {
+        text-decoration: underline;
+      }
+
+      .input-icon {
+        position: relative;
+      }
+
+      .input-icon i {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #999;
+      }
+
+      .password-strength {
+        height: 4px;
+        background: #eee;
+        margin-top: 8px;
+        border-radius: 2px;
+        overflow: hidden;
+      }
+
+      .strength-meter {
+        height: 100%;
+        width: 0;
+        background: #ff4757;
+        transition: all 0.3s;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 576px) {
+        .signup-container {
+          padding: 30px 20px;
+        }
+
+        .signup-container h2 {
+          font-size: 24px;
+        }
+      }
+
+      /* Flash messages */
+      .flash-messages {
+        margin-bottom: 20px;
+      }
+
+      .flash-message {
+        padding: 10px 15px;
+        border-radius: var(--radius);
+        background-color: #f8d7da;
+        color: #721c24;
+        margin-bottom: 10px;
+        font-size: 14px;
+        animation: fadeIn 0.3s ease-out;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="signup-container">
+      <h2>
+        <i class="fas fa-user-plus" style="margin-right: 10px"></i>Create Your
+        Account
+      </h2>
+
+      <% if (messages.error || messages.success) { %>
+      <div class="flash-messages">
+        <% if (messages.error) { %> <% messages.error.forEach(function(message)
+        { %>
+        <div class="flash-message"><%= message %></div>
+        <% }); %> <% } %> <% if (messages.success) { %> <%
+        messages.success.forEach(function(message) { %>
+        <div
+          class="flash-message"
+          style="background-color: #d4edda; color: #155724"
+        >
+          <%= message %>
+        </div>
+        <% }); %> <% } %>
+      </div>
+      <% } %>
+
+      <form action="/signup" method="POST">
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            placeholder="John Doe"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="age">Age</label>
+          <input
+            type="number"
+            id="age"
+            name="age"
+            min="0"
+            max="120"
+            placeholder="30"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="gender">Gender</label>
+          <select id="gender" name="gender" required>
+            <option value="">Select gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="prefer_not_to_say">Prefer not to say</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <div class="input-icon">
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="john@example.com"
+              required
+            />
+            <i class="fas fa-envelope"></i>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <div class="input-icon">
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              placeholder="+1 (123) 456-7890"
+              required
+            />
+            <i class="fas fa-phone"></i>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="username">Username</label>
+          <div class="input-icon">
+            <input
+              type="text"
+              id="username"
+              name="username"
+              placeholder="johndoe123"
+              required
+            />
+            <i class="fas fa-user"></i>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-icon">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="••••••••"
+              required
+            />
+            <i class="fas fa-lock"></i>
+          </div>
+          <div class="password-strength">
+            <div class="strength-meter" id="strength-meter"></div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit">
+          <i class="fas fa-user-plus" style="margin-right: 8px"></i>Create
+          Account
+        </button>
+
+        <div class="login-link">
+          Already have an account? <a href="/login">Log in</a>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      // Simple password strength meter
+      const passwordInput = document.getElementById("password");
+      const strengthMeter = document.getElementById("strength-meter");
+
+      passwordInput.addEventListener("input", function () {
+        const password = this.value;
+        let strength = 0;
+
+        // Check length
+        if (password.length >= 8) strength += 25;
+
+        // Check for lowercase and uppercase letters
+        if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength += 25;
+
+        // Check for numbers
+        if (/\d/.test(password)) strength += 25;
+
+        // Check for special characters
+        if (/[^A-Za-z0-9]/.test(password)) strength += 25;
+
+        // Update meter
+        strengthMeter.style.width = strength + "%";
+
+        // Change color based on strength
+        if (strength < 25) {
+          strengthMeter.style.background = "#ff4757";
+        } else if (strength < 50) {
+          strengthMeter.style.background = "#ffa502";
+        } else if (strength < 75) {
+          strengthMeter.style.background = "#ffba00";
+        } else {
+          strengthMeter.style.background = "#2ed573";
+        }
+      });
+    </script>
+  </body>
+</html>
